@@ -1,5 +1,17 @@
 # Mazemunch: Specification
 
+## Table of contents
+
+1. [Overview](#1-overview)
+2. [Goals](#2-goals)
+3. [Running the game](#3-running-the-game)
+4. [Controls](#4-controls)
+5. [Game flow](#5-game-flow)
+6. [Gameplay rules](#6-gameplay-rules)
+7. [High scores and settings](#7-high-scores-and-settings)
+8. [Data files](#8-data-files)
+9. [Non-functional requirements](#9-non-functional-requirements)
+
 ## 1. Overview
 
 Mazemunch is a single-player maze-chase arcade game that runs in a web browser.
@@ -49,6 +61,11 @@ random choices repeat exactly, which is useful for testing and demos.
 - A pressed direction is remembered for about 8 ticks (~0.13 s), so a turn
   can be pressed slightly before reaching a corner.
 - Switching to another browser tab pauses the game automatically.
+- A swipe keeps steering Munch in that direction until the next swipe or key
+  press — it is not a one-time nudge.
+- Keyboard, swipe/tap and gamepad controls are suspended while the Settings
+  or high-score pop-up is open, so typing initials or changing a setting
+  can't move Munch or start/pause the game.
 
 ## 5. Game flow
 
@@ -69,7 +86,7 @@ PLAYING ──all pellets eaten──► CLEARED ──2 s──► WON ──�
 | Playing | Normal gameplay. |
 | Dying | Munch's death animation (1.5 s). One life is lost. |
 | Cleared | Maze walls flash (2 s) after the last pellet is eaten. |
-| Won / Game over | End screen. If the score makes the top 10, the player is asked for initials. |
+| Won / Game over | End screen. If the score makes the top 10, the player is asked for initials. For about 1 second after the screen appears, Start is ignored, so a leftover key press from the game that just ended can't instantly skip it. |
 
 ## 6. Gameplay rules
 
@@ -81,7 +98,9 @@ All numbers below come from `data/level.json` and can be changed there.
 - Tile types: wall, pellet, power pellet, empty corridor, ghost-house door,
   and tunnel.
 - Tunnels on the left and right edges wrap around to the other side.
-- Every character's speed is reduced inside a tunnel.
+- Munch and chasers that are chasing or frightened have their speed reduced
+  inside a tunnel. Eaten chasers (eyes) returning to the ghost house are not
+  slowed by a tunnel, even where their path home crosses one.
 
 ### 6.2 Munch (the player)
 
@@ -133,7 +152,7 @@ Speeds are fractions of a base speed of 75.75 pixels per second.
 | Chaser | 0.75 |
 | Frightened chaser | 0.50 |
 | Eaten chaser (eyes) | 1.50 |
-| Anyone in a tunnel (maximum) | 0.40 |
+| Munch or a chasing/frightened chaser in a tunnel (maximum) | 0.40 |
 
 ### 6.6 Scoring
 
@@ -157,6 +176,14 @@ Speeds are fractions of a base speed of 75.75 pixels per second.
 
 - The top **10** scores are saved in the browser (`localStorage`). Each entry
   has 3-character initials (letters and digits), the score and the date.
+- The title screen shows only the best **5** of the 10 saved scores; all 10
+  are kept in storage.
+- While playing, the score bar also shows the single highest score reached
+  so far on this browser, updated live the instant it's beaten. This is
+  separate from the saved top-10 list, which is only written at the end of
+  a game.
+- Initials are forced to uppercase letters and digits as they're typed.
+  Leaving the field blank saves the entry as `???`.
 - If the browser blocks storage (e.g. some private windows), the game still
   runs; scores just aren't saved.
 - The settings menu (gear button) offers:
@@ -203,5 +230,23 @@ shows the list of errors on screen instead of starting. The maze is rejected if:
 | Timing | The game advances in fixed 1/60-second steps, independent of the monitor's refresh rate. |
 | Display | Logical screen of 224 × 288 pixels, scaled to fit the window and drawn sharply on high-resolution screens. |
 | Assets | All graphics are drawn in code. No image or audio files. |
-| Accessibility | Settings for reduced flashing, shape markers and slower speed. The canvas has a text description for screen readers. |
+| Accessibility | Settings for reduced flashing, shape markers and slower speed. The canvas has a text description for screen readers. The Settings and high-score pop-ups are standard accessible HTML dialogs — keyboard-focusable controls, labelled for screen readers, closed with Escape, with focus returning to the button that opened them — rather than being drawn on the canvas. |
 | Robustness | Missing or invalid data shows a clear error on screen. Blocked storage never stops the game. |
+
+## Changelog
+
+This revision adds a table of contents and documents eight behaviors that
+were already implemented but not previously written down: a swipe keeps
+steering Munch until the next swipe or key press; keyboard, swipe/tap and
+gamepad controls are suspended while the Settings or high-score pop-up is
+open; Start is ignored for about a second after the Won/Game Over screen
+appears, so a leftover key press can't skip it instantly; the title screen
+shows only the top 5 of the 10 saved high scores; the score bar shows a
+live, always-current high score separate from the saved top-10 list; typed
+initials are forced to uppercase letters and digits, defaulting to `???` if
+left blank; the Settings/high-score pop-ups are accessible HTML dialogs
+with keyboard focus handling, distinct from the canvas's screen-reader
+description; and the tunnel speed cap applies to Munch and chasing/
+frightened chasers only, not to eaten chasers (eyes) returning home. No
+gameplay behavior changed — these are documentation-only clarifications
+matching the existing code.
