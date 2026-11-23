@@ -98,7 +98,9 @@ All numbers below come from `data/level.json` and can be changed there.
 - Tile types: wall, pellet, power pellet, empty corridor, ghost-house door,
   and tunnel.
 - Tunnels on the left and right edges wrap around to the other side.
-- Every character's speed is reduced inside a tunnel.
+- Munch and chasers that are chasing or frightened have their speed reduced
+  inside a tunnel. Eaten chasers (eyes) returning to the ghost house are not
+  slowed by a tunnel, even where their path home crosses one.
 
 ### 6.2 Munch (the player)
 
@@ -150,7 +152,7 @@ Speeds are fractions of a base speed of 75.75 pixels per second.
 | Chaser | 0.75 |
 | Frightened chaser | 0.50 |
 | Eaten chaser (eyes) | 1.50 |
-| Anyone in a tunnel (maximum) | 0.40 |
+| Munch or a chasing/frightened chaser in a tunnel (maximum) | 0.40 |
 
 ### 6.6 Scoring
 
@@ -233,7 +235,7 @@ shows the list of errors on screen instead of starting. The maze is rejected if:
 
 ## Changelog
 
-This revision adds a table of contents and documents seven behaviors that
+This revision adds a table of contents and documents eight behaviors that
 were already implemented but not previously written down: a swipe keeps
 steering Munch until the next swipe or key press; keyboard, swipe/tap and
 gamepad controls are suspended while the Settings or high-score pop-up is
@@ -242,7 +244,9 @@ appears, so a leftover key press can't skip it instantly; the title screen
 shows only the top 5 of the 10 saved high scores; the score bar shows a
 live, always-current high score separate from the saved top-10 list; typed
 initials are forced to uppercase letters and digits, defaulting to `???` if
-left blank; and the Settings/high-score pop-ups are accessible HTML dialogs
+left blank; the Settings/high-score pop-ups are accessible HTML dialogs
 with keyboard focus handling, distinct from the canvas's screen-reader
-description. No gameplay behavior changed — these are documentation-only
-clarifications matching the existing code.
+description; and the tunnel speed cap applies to Munch and chasing/
+frightened chasers only, not to eaten chasers (eyes) returning home. No
+gameplay behavior changed — these are documentation-only clarifications
+matching the existing code.
